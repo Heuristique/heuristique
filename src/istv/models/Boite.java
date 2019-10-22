@@ -22,6 +22,40 @@ public class Boite {
 		this.résidu = résidu;
 		this.listeObjet = ao;
 	}
+/**Compte le nombre de couleur afin de verifier si l'objet o1 est ajoutable dans notre sac ou non**/
+	
+	
+	public boolean verifCouleur(Objet o1){
+
+		ArrayList<Integer> listeCouleurBoite = new ArrayList<>();
+		boolean notIn = true;
+		boolean ajoutable = false;
+		
+		for(Objet o : listeObjet) {
+			notIn = true;
+			for(Integer i : listeCouleurBoite) {
+				if(i == o.getCouleur()) {
+					notIn = false;
+				}
+			}
+			if(notIn == true && listeCouleurBoite.size() < 2) {
+				listeCouleurBoite.add(o.getCouleur());
+			}
+			
+			/**La couleur de l'objet est dans la liste , ou il n'y a qu'une seule couleur, on peut 
+			donc l'ajouter**/
+			
+			for(Integer i2 : listeCouleurBoite) {
+				if(o1.getCouleur() == i2 || listeCouleurBoite.size()  < 2){
+					ajoutable = true;
+				}
+			}
+		}
+		
+		return ajoutable;
+	}
+	
+
 	
 	public int getId() {
 		return this.id;
