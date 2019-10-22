@@ -22,9 +22,9 @@ public class Boite {
 		this.résidu = résidu;
 		this.listeObjet = ao;
 	}
-/**Compte le nombre de couleur afin de verifier si l'objet o1 est ajoutable dans notre sac ou non**/
+
 	
-	
+	/**Compte le nombre de couleur afin de verifier si l'objet o1 est ajoutable dans notre sac ou non**/
 	public boolean verifCouleur(Objet o1){
 
 		ArrayList<Integer> listeCouleurBoite = new ArrayList<>();
