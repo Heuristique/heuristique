@@ -1,7 +1,10 @@
 package istv.models;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Objet {
 	
+	private static final AtomicInteger count = new AtomicInteger(0);
 	private int id;
 	private int poids;
 	private int couleur;
@@ -10,6 +13,12 @@ public class Objet {
 	
 	public Objet(int id, int poids, int couleur) {
 		this.id = id;
+		this.poids = poids;
+		this.couleur = couleur;
+	}
+	
+	public Objet(int poids,int couleur) {
+		this.id = count.incrementAndGet();
 		this.poids = poids;
 		this.couleur = couleur;
 	}
