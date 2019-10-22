@@ -16,6 +16,27 @@ public class Boite {
 		this.listeObjet = ao;
 	}
 	
+	public int verifCouleur(){
+		int temp=0;
+		ArrayList<Integer> listeCouleurBoite = new ArrayList<>();
+		int notIn = 1;
+		for(Objet o : listeObjet) {
+			notIn = 1;
+			for(Integer i : listeCouleurBoite) {
+				if(i == o.getCouleur()) {
+					notIn = 0;
+				}
+			}
+			if(notIn == 1 && listeCouleurBoite.size() < 2) {
+				listeCouleurBoite.add(o.getCouleur());
+			}
+		}
+		
+		System.out.println("Il y a" + listeCouleurBoite.size() + 
+				"couleurs différentes dans la boite");
+		
+		return listeCouleurBoite.size();
+	}
 	public int getId() {
 		return this.id;
 	}
