@@ -1,15 +1,10 @@
 package istv.main;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import istv.models.Boite;
@@ -32,16 +27,6 @@ public class Probleme {
 		this.résiduTotal = rt;
 	}
 	
-	
-	
-	public Probleme(){
-	
-		this.listeObjet = new ArrayList<Objet>();
-		this.tailleDisponible = new ArrayList<Integer>();
-	}
-
-
-
 	public void insertionObjetDansBoite(Objet o, Boite b) {
 		b.addObjet(o);
 		System.out.println("Insertion Objet : " + o.getId() + " ayant un poids de " + o.getPoids());
@@ -59,7 +44,11 @@ public class Probleme {
 		
 	}
 	
-	
+	public void affichageSolutiuon() {
+		for(int i = 0; i<this.solution.size(); i++) {
+			
+		}
+	}
 	
 	
 	/**
@@ -70,14 +59,14 @@ public class Probleme {
 		int min = Integer.MAX_VALUE; 
 		boolean newBoite = true;
 		for(int i=0; i<this.tailleDisponible.size(); i++) {
-			if(this.tailleDisponible.get(i) > o.getPoids() && this.tailleDisponible.get(i) < min)
+			if(this.tailleDisponible.get(i) >= o.getPoids() && this.tailleDisponible.get(i) < min)
 				min = this.tailleDisponible.get(i);
 		}
 		if(this.solution.isEmpty() == false) {
 			for(int j=0; j<this.solution.size(); j++) {
 				//Rajouter la vérif de  : "est ce que l'objet a une couleur satisfaisante pour être inséré dans la boite 
-				if(this.solution.get(j).getRésidu() > o.getPoids() && this.solution.get(j).getRésidu() < min 
-						/*&& this.solution.get(j).??(o)*/) {
+				if(this.solution.get(j).getRésidu() >= o.getPoids() && this.solution.get(j).getRésidu() < min 
+						 && this.solution.get(j).verifCouleur(o)) {
 					newBoite = false;
 					min = j;
 				} 
@@ -85,10 +74,14 @@ public class Probleme {
 		}
 		if(newBoite == false) {
 			this.solution.get(min).addObjet(o);
+			System.out.println("Objet n° : " + o.getId() + " a été ajouté à la boite solution : " + this.solution.get(min));
 		}
 		else {
 			Boite b = new Boite(min);
 			b.addObjet(o);
+			this.solution.add(b);
+			System.out.println("Création d'une nouvelle Boite : " + b.getId() + " de capacité : " + b.getCapacité() + 
+					" ajout de l'objet " + o);
 		}				
 	}
 	
@@ -100,10 +93,11 @@ public class Probleme {
 		for(int i=0; i<this.listeObjet.size(); i++) {
 			this.trouvePlusPetiteBoite(this.listeObjet.get(i));
 			this.listeObjet.remove(i);
+			i--;
 		}
 	}
 	
-	public void recupererFichier() {
+public void recupererFichier() {
 		
 		int i= 0;
 		int repere = 0;
@@ -157,11 +151,42 @@ public class Probleme {
 			System.out.println("Objet n°" + o.getId() +"de couleur : "+
 					o.getCouleur() + " et de poids" + o.getPoids());	
 			}
-		}
-	
-	
-	public static void main(String args[]) throws NumberFormatException, IOException {
-		Probleme p1 = new Probleme();
-		p1.recupererFichier();
 	}
+	
+	public static void main(String args[]) {
+		Objet o1 = new Objet(1,1,1);
+		Objet o2 = new Objet(2,3,2);
+		Objet o3 = new Objet(3,2,2);
+		Objet o4 = new Objet(4,9,1);
+		Objet o5 = new Objet(5,9,1);
+		Objet o6 = new Objet(6,11,3);
+		Objet o7 = new Objet(7,3,1);
+		Objet o8 = new Objet(8,3,3);
+		Objet o9 = new Objet(9,5,2);
+		Objet o10 = new Objet(10,2,1);
+		ArrayList<Objet> listeObjet = new ArrayList();
+		listeObjet.add(o1);
+		listeObjet.add(o2);
+		listeObjet.add(o3);
+		listeObjet.add(o4);
+		listeObjet.add(o5);
+		listeObjet.add(o6);
+		listeObjet.add(o7);
+		listeObjet.add(o8);
+		listeObjet.add(o9);
+		listeObjet.add(o10);
+		ArrayList<Integer> tailleDisponible = new ArrayList();
+		tailleDisponible.add(5);
+		tailleDisponible.add(7);
+		tailleDisponible.add(9);
+		tailleDisponible.add(11);
+		tailleDisponible.add(15);
+		tailleDisponible.add(18);
+		Probleme p = new Probleme(listeObjet, tailleDisponible, new ArrayList<Boite>(), 0);
+		p.solutionSimple();
+	}
+	
+	
+	
+	
 }
