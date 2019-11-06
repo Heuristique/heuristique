@@ -11,11 +11,6 @@ public class Objet {
 	
 	public Objet() { }
 
-	/* add comentsh  */
-	public void test() {
-		
-	}
-	
 	public Objet(int poids,int couleur) {
 		this.id = count.incrementAndGet();
 		this.poids = poids;
