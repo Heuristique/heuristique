@@ -9,9 +9,13 @@ public class Objet {
 	private int poids;
 	private int couleur;
 	
-	// test gir anas
+	// test git anas
 	
 	public Objet() { }
+	
+	public void test() {
+		
+	}
 	
 	public Objet(int id, int poids, int couleur) {
 		this.id = id;
