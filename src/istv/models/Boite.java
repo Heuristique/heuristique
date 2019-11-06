@@ -23,7 +23,6 @@ public class Boite {
 		this.listeObjet = ao;
 	}
 
-	
 	/**Compte le nombre de couleur afin de verifier si l'objet o1 est ajoutable dans notre sac ou non**/
 	public boolean verifCouleur(Objet o1){
 
@@ -90,11 +89,16 @@ public class Boite {
 	}
 	
 	public void addObjet(Objet o) {
+		if(verifCouleur(o)) {
 		this.listeObjet.add(o);
+		this.calculRésidu();
+		}
 	}
 	
 	public void removeObjet(Objet o) {
 		this.listeObjet.remove(o);
+		this.calculRésidu();
+
 	}
 	
 	public Objet findObjetById(int id) {
@@ -104,11 +108,16 @@ public class Boite {
 		}
 		return new Objet();
 	}
-	
+	public void SupressObjetById(int id) {
+		for(int i = 0; i<this.listeObjet.size(); i++) {
+			if(this.listeObjet.get(i).getId() == id)
+				this.listeObjet.remove(i);
+		}
+	}
 	public void calculRésidu() {
 		int temp = 0;
 		for(int i = 0; i<this.listeObjet.size(); i++) {
-			temp = this.listeObjet.get(i).getPoids();
+			temp = temp + this.listeObjet.get(i).getPoids();
 		}
 		this.résidu = this.capacité - temp;
 	}

@@ -9,22 +9,16 @@ public class Objet {
 	private int poids;
 	private int couleur;
 	
-	// test git anas
-	
 	public Objet() { }
-	
-	public void test() {
-		
-	}
-	
-	public Objet(int id, int poids, int couleur) {
-		this.id = id;
-		this.poids = poids;
-		this.couleur = couleur;
-	}
+
 	
 	public Objet(int poids,int couleur) {
 		this.id = count.incrementAndGet();
+		this.poids = poids;
+		this.couleur = couleur;
+	}
+	public Objet(int id,int poids,int couleur) {
+		this.id = id;
 		this.poids = poids;
 		this.couleur = couleur;
 	}

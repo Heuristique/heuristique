@@ -1,10 +1,15 @@
 package istv.main;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import istv.models.Boite;
@@ -12,9 +17,9 @@ import istv.models.Objet;
 
 public class Probleme {
 	
-	private ArrayList<Objet> listeObjet = new ArrayList();
-	private ArrayList<Integer> tailleDisponible = new ArrayList();
-	private ArrayList<Boite> solution = new ArrayList();
+	private ArrayList<Objet> listeObjet;
+	private ArrayList<Integer> tailleDisponible;
+	private ArrayList<Boite> solution;
 	private int résiduTotal;
 	private int nombreDeCouleur;
 	private int nombreDeBoite;
@@ -27,6 +32,36 @@ public class Probleme {
 		this.résiduTotal = rt;
 	}
 	
+	
+	
+	public Probleme(){
+	
+		this.listeObjet = new ArrayList<Objet>();
+		this.tailleDisponible = new ArrayList<Integer>();
+		this.solution = new ArrayList<Boite>();
+
+	}
+
+	public void removeBoiteById(int id) {
+		int rem = -1;
+		for (int i = 0;i<solution.size();i++) {
+			if(solution.get(i).getId() == id) {
+				rem = i;
+			}
+		}
+		if(rem != -1) {
+		solution.remove(rem);
+		}
+		else {
+			System.out.println("Pas de boite contenant cet id");
+		}
+	}
+	public void SupressObjetById(int id) {
+		for(int i = 0; i<this.solution.size(); i++) {
+			if(this.solution.get(i).getId() == id)
+				this.solution.remove(i);
+		}
+	}
 	public void insertionObjetDansBoite(Objet o, Boite b) {
 		b.addObjet(o);
 		System.out.println("Insertion Objet : " + o.getId() + " ayant un poids de " + o.getPoids());
@@ -44,12 +79,107 @@ public class Probleme {
 		
 	}
 	
-	public void affichageSolutiuon() {
-		for(int i = 0; i<this.solution.size(); i++) {
-			
+	
+	
+	public void combinaisonSac() {
+		
+		for(int e : this.tailleDisponible) {
+			for(int i = 0;i<this.listeObjet.size();i++) {
+				for(int j = 0;j<this.listeObjet.size();j++) {
+				if(this.listeObjet.get(i).getId() != this.listeObjet.get(j).getId()) {
+					if(this.listeObjet.get(i).getPoids() + this.listeObjet.get(j).getPoids() == e) {
+						Boite b = new Boite(e);
+						
+						b.addObjet(this.listeObjet.get(i));
+						if(i == this.listeObjet.size()-2) {
+							i = i-1;
+						}
+						if(i == this.listeObjet.size()-1) {
+							i = i-2;
+						}
+						b.addObjet(this.listeObjet.get(j));
+						
+						this.solution.add(b);
+						System.out.println("Trouvé : " + this.listeObjet.get(i).getId() + " ! "+ this.listeObjet.get(j).getId());
+						this.listeObjet.remove(j);
+						this.listeObjet.remove(i);
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	
+	/**Completer residu boite**/
+	
+	public void combinaisonSac2() {
+		int remove = 0;
+		for(Boite e : this.solution) {
+			for(int i = 0;i<this.listeObjet.size();i++) {
+				for(int j = 0;j<this.listeObjet.size();j++) {
+				if(this.listeObjet.get(i).getId() != this.listeObjet.get(j).getId()) {
+					if(this.listeObjet.get(i).getPoids() + this.listeObjet.get(j).getPoids() == e.getRésidu()) {
+						e.addObjet(this.listeObjet.get(i));
+						e.addObjet(this.listeObjet.get(j));
+						System.out.println("Boite complété : " + this.listeObjet.get(i).getId() + " ! "+ this.listeObjet.get(j).getId());
+						this.listeObjet.remove(j);
+						this.listeObjet.remove(i);
+						}
+					else{
+						for(int t : this.tailleDisponible) {
+							if(e.getListeObjet().size() == 1) {
+							if(t == this.listeObjet.get(i).getPoids()+this.listeObjet.get(j).getPoids()+ e.getListeObjet().get(0).getPoids()) {
+								Boite b = new Boite(t);
+								b.addObjet(this.listeObjet.get(i));
+								b.addObjet(this.listeObjet.get(j));
+								//b.verifCouleur(e.getListeObjet().get(0));
+								b.addObjet(e.getListeObjet().get(0));
+								e.getListeObjet().remove(0);
+								remove = e.getId();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(remove != 0) {
+			this.SupressObjetById(remove);
 		}
 	}
 	
+	/**Explore les boites remplis , les compares avec les tailles disponibles, si la capacité
+	  d'une boite  + un objet =  taille dispo , creation d'une nouvelle boite , suppr l'ancienne
+	   et insertion des objets dans cette nouvelle**/
+	  	 
+	public void combinaisonSac3() {
+		int idBoiteSuppr = -1;
+		for(int t : tailleDisponible) {
+			for(Boite b : solution) {
+				for(Objet o : listeObjet){
+					if(b.getCapacité() + o.getPoids() == t) {
+						//TODO : Supprimer la boite b de la solution et la remplacer par la nouvelle boite
+						Boite bo = new Boite(t);
+						b.getListeObjet().size();
+						for(Objet o1 : b.getListeObjet()) {
+							bo.addObjet(o1);
+							b.verifCouleur(o1);
+						}
+						bo.verifCouleur(o);
+						bo.addObjet(o);
+						idBoiteSuppr = b.getId();
+					}
+					
+					
+				}
+			}
+		}
+		if(idBoiteSuppr != -1) {
+			this.removeBoiteById(idBoiteSuppr);
+		}
+	}
 	
 	/**
 	 * Insertion de l'objet dans la boite de plus petite capacité supérieur au poids de l'objet
@@ -74,30 +204,42 @@ public class Probleme {
 		}
 		if(newBoite == false) {
 			this.solution.get(min).addObjet(o);
-			System.out.println("Objet n° : " + o.getId() + " a été ajouté à la boite solution : " + this.solution.get(min));
+			System.out.println("Objet n° : " + o.getId() + " a été ajouté à la boite solution : " + this.solution.get(min).getId());
 		}
 		else {
 			Boite b = new Boite(min);
 			b.addObjet(o);
 			this.solution.add(b);
+			
 			System.out.println("Création d'une nouvelle Boite : " + b.getId() + " de capacité : " + b.getCapacité() + 
-					" ajout de l'objet " + o);
-		}				
+					" ajout de l'objet " + o.getId());
+		}
+		combinaisonSac2();
+
+
 	}
 	
 	
 	/**
 	 * Solution simple, pas optimale 
 	 */
-	public void solutionSimple() {
+	public void solutionSimple(){
 		for(int i=0; i<this.listeObjet.size(); i++) {
+			this.combinaisonSac();
+			this.combinaisonSac2();
 			this.trouvePlusPetiteBoite(this.listeObjet.get(i));
+			this.combinaisonSac2();
+
+			
 			this.listeObjet.remove(i);
+			
 			i--;
 		}
+
 	}
 	
-public void recupererFichier() {
+	
+	public void recupererFichier(int k,int p) {
 		
 		int i= 0;
 		int repere = 0;
@@ -105,7 +247,7 @@ public void recupererFichier() {
 
 		/**Lecture du fichier **/
 		try {
-		InputStream flux=new FileInputStream("test.txt"); 
+		InputStream flux=new FileInputStream("bench//bench_"+k+"_"+p); 
 		InputStreamReader lecture=new InputStreamReader(flux);
 		BufferedReader buff=new BufferedReader(lecture);
 		String ligne;
@@ -125,7 +267,7 @@ public void recupererFichier() {
 		/**Assignation des données récupéré à des variables/tableaux**/
 		nombreDeBoite = listeNombres.get(0);
 		
-		for (int j = 1;i<=nombreDeBoite;i++) {
+		for (int j = 1;j<=nombreDeBoite;j++) {
 			this.tailleDisponible.add(listeNombres.get(j));
 			
 		}
@@ -136,7 +278,7 @@ public void recupererFichier() {
 		 repere++;
 		 
 		 for(i = repere;i<listeNombres.size();i++) {
-			 Objet o1 = new Objet(listeNombres.get(i+1),listeNombres.get(i));
+			 Objet o1 = new Objet(listeNombres.get(i),listeNombres.get(i+1));
 			 this.listeObjet.add(o1);
 			 i++;
 		 }
@@ -151,42 +293,56 @@ public void recupererFichier() {
 			System.out.println("Objet n°" + o.getId() +"de couleur : "+
 					o.getCouleur() + " et de poids" + o.getPoids());	
 			}
+		}
+	
+	public int getRésiduTotal() {
+		return résiduTotal;
 	}
-	
-	public static void main(String args[]) {
-		Objet o1 = new Objet(1,1,1);
-		Objet o2 = new Objet(2,3,2);
-		Objet o3 = new Objet(3,2,2);
-		Objet o4 = new Objet(4,9,1);
-		Objet o5 = new Objet(5,9,1);
-		Objet o6 = new Objet(6,11,3);
-		Objet o7 = new Objet(7,3,1);
-		Objet o8 = new Objet(8,3,3);
-		Objet o9 = new Objet(9,5,2);
-		Objet o10 = new Objet(10,2,1);
-		ArrayList<Objet> listeObjet = new ArrayList();
-		listeObjet.add(o1);
-		listeObjet.add(o2);
-		listeObjet.add(o3);
-		listeObjet.add(o4);
-		listeObjet.add(o5);
-		listeObjet.add(o6);
-		listeObjet.add(o7);
-		listeObjet.add(o8);
-		listeObjet.add(o9);
-		listeObjet.add(o10);
-		ArrayList<Integer> tailleDisponible = new ArrayList();
-		tailleDisponible.add(5);
-		tailleDisponible.add(7);
-		tailleDisponible.add(9);
-		tailleDisponible.add(11);
-		tailleDisponible.add(15);
-		tailleDisponible.add(18);
-		Probleme p = new Probleme(listeObjet, tailleDisponible, new ArrayList<Boite>(), 0);
-		p.solutionSimple();
+
+
+
+	public ArrayList<Boite> getSolution() {
+		return solution;
 	}
+
+
+
+	public static void main(String args[]) throws NumberFormatException, IOException {
+
+		ArrayList<Probleme> listeP = new ArrayList<Probleme>();
 	
+		/** Test sur tout les benchs **/ 	
+	/*	for(int i = 2;i<=20;i++) {
+			for(int j=0;j<=4;j++) {	
+
+				Probleme p1 = new Probleme();
+				p1.recupererFichier(i,j);
+				p1.solutionSimple();
+				p1.calculRésidu();
+				listeP.add(p1);
+				System.out.println("Le résidu total est de "+ p1.getRésiduTotal() + "pour " + p1.getSolution().size()+" boites");
+			}
+		}*/
+		
+		/**Test sur un seul bench **/
 	
-	
-	
+		Probleme p1 = new Probleme();	
+		p1.recupererFichier(2,0);
+		p1.solutionSimple();
+		p1.calculRésidu();
+		listeP.add(p1);
+		
+		
+		int resmoy = 0;
+		int cpt = 0;
+		int nbmoyBoite = 0;
+		for(Probleme p : listeP) {
+			cpt++;
+		resmoy = resmoy + p.getRésiduTotal() ;
+		nbmoyBoite = nbmoyBoite + p.getSolution().size();
+		}
+		System.out.println("Le residu total est de " +p1.getRésiduTotal());
+		System.out.println("Le residu moyen est de : "+ resmoy / cpt +  "et le nombre de boite" + nbmoyBoite/cpt);
+
+	}
 }
