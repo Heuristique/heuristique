@@ -9,6 +9,8 @@ public class Objet {
 	private int poids;
 	private int couleur;
 	
+	// test gir anas
+	
 	public Objet() { }
 	
 	public Objet(int id, int poids, int couleur) {
