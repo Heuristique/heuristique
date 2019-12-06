@@ -80,7 +80,7 @@ public class Probleme {
 	}
 	
 	
-	
+	//Test si 2 objets correspondent a une taille de sac , les ajoutes si oui
 	public void combinaisonSac() {
 		
 		for(int e : this.tailleDisponible) {
@@ -111,7 +111,9 @@ public class Probleme {
 		
 	}
 	
+	
 	/**Completer residu boite**/
+	/**Test si il y a une boite dont le résidus peut etre completer avec un objet**/
 	
 	public void combinaisonSac2() {
 		int remove = 0;
@@ -129,14 +131,15 @@ public class Probleme {
 					else{
 						for(int t : this.tailleDisponible) {
 							if(e.getListeObjet().size() == 1) {
+							if(e.verifCouleur(e.getListeObjet().get(0))){
 							if(t == this.listeObjet.get(i).getPoids()+this.listeObjet.get(j).getPoids()+ e.getListeObjet().get(0).getPoids()) {
 								Boite b = new Boite(t);
 								b.addObjet(this.listeObjet.get(i));
 								b.addObjet(this.listeObjet.get(j));
-								//b.verifCouleur(e.getListeObjet().get(0));
 								b.addObjet(e.getListeObjet().get(0));
 								e.getListeObjet().remove(0);
 								remove = e.getId();
+									}
 									}
 								}
 							}
@@ -160,14 +163,15 @@ public class Probleme {
 			for(Boite b : solution) {
 				for(Objet o : listeObjet){
 					if(b.getCapacité() + o.getPoids() == t) {
-						//TODO : Supprimer la boite b de la solution et la remplacer par la nouvelle boite
+						// Supprimer la boite b de la solution et la remplacer par la nouvelle boite
 						Boite bo = new Boite(t);
 						b.getListeObjet().size();
 						for(Objet o1 : b.getListeObjet()) {
-							bo.addObjet(o1);
-							b.verifCouleur(o1);
-						}
-						bo.verifCouleur(o);
+							if(bo.verifCouleur(o1)) {
+								bo.addObjet(o1);
+								System.out.println("OOOO");
+							}
+													}
 						bo.addObjet(o);
 						idBoiteSuppr = b.getId();
 					}
@@ -221,14 +225,14 @@ public class Probleme {
 	
 	
 	/**
-	 * Solution simple, pas optimale 
+	 * Solution simple, pas optimale (ce n'est pas une heuristique)
 	 */
 	public void solutionSimple(){
 		for(int i=0; i<this.listeObjet.size(); i++) {
 			this.combinaisonSac();
 			this.combinaisonSac2();
 			this.trouvePlusPetiteBoite(this.listeObjet.get(i));
-			this.combinaisonSac2();
+			this.combinaisonSac3();
 
 			
 			this.listeObjet.remove(i);
@@ -239,6 +243,10 @@ public class Probleme {
 	}
 	
 	
+	/**Lecture du fichier , on recupère les données nécessaire
+	 * au traitement du probleme
+	 * 
+	 * 	 */
 	public void recupererFichier(int k,int p) {
 		
 		int i= 0;
@@ -312,7 +320,7 @@ public class Probleme {
 		ArrayList<Probleme> listeP = new ArrayList<Probleme>();
 	
 		/** Test sur tout les benchs **/ 	
-	/*	for(int i = 2;i<=20;i++) {
+		for(int i = 2;i<=20;i++) {
 			for(int j=0;j<=4;j++) {	
 
 				Probleme p1 = new Probleme();
@@ -320,17 +328,20 @@ public class Probleme {
 				p1.solutionSimple();
 				p1.calculRésidu();
 				listeP.add(p1);
-				System.out.println("Le résidu total est de "+ p1.getRésiduTotal() + "pour " + p1.getSolution().size()+" boites");
 			}
-		}*/
+		}
+		
+		/**TODO : essayer d'implementer une heuristique afin de traiter le problème 
+		 * plus efficacement
+		 */
 		
 		/**Test sur un seul bench **/
-	
+	/*
 		Probleme p1 = new Probleme();	
 		p1.recupererFichier(2,0);
 		p1.solutionSimple();
 		p1.calculRésidu();
-		listeP.add(p1);
+		listeP.add(p1);*/
 		
 		
 		int resmoy = 0;
@@ -341,7 +352,6 @@ public class Probleme {
 		resmoy = resmoy + p.getRésiduTotal() ;
 		nbmoyBoite = nbmoyBoite + p.getSolution().size();
 		}
-		System.out.println("Le residu total est de " +p1.getRésiduTotal());
 		System.out.println("Le residu moyen est de : "+ resmoy / cpt +  "et le nombre de boite" + nbmoyBoite/cpt);
 
 	}
