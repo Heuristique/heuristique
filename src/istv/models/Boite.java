@@ -29,30 +29,22 @@ public class Boite {
 
 	/**Compte le nombre de couleur afin de verifier si l'objet o1 est ajoutable dans notre sac ou non**/
 	public boolean verifCouleur(Objet o1){
-
-		ArrayList<Integer> listeCouleurBoite = new ArrayList<>();
-		boolean notIn = true;
-		boolean ajoutable = false;
 		
+		boolean ajoutable = false;
+		int compteurCouleur = 0;
+		ArrayList<Integer> couleurDansLaListe = new ArrayList<Integer>();
 		for(Objet o : listeObjet) {
-			notIn = true;
-			for(Integer i : listeCouleurBoite) {
-				if(i == o.getCouleur()) {
-					notIn = false;
-				}
+			if(!couleurDansLaListe.contains(o.getCouleur())) {
+				couleurDansLaListe.add(o.getCouleur());
+				compteurCouleur ++;
 			}
-			if(notIn == true && listeCouleurBoite.size() < 2) {
-				listeCouleurBoite.add(o.getCouleur());
-			}
-			
-			/**La couleur de l'objet est dans la liste , ou il n'y a qu'une seule couleur, on peut 
-			donc l'ajouter**/
-			
-			for(Integer i2 : listeCouleurBoite) {
-				if(o1.getCouleur() == i2 || listeCouleurBoite.size()  < 2){
-					ajoutable = true;
-				}
-			}
+		}
+		
+		if(couleurDansLaListe.contains(o1.getCouleur())) {
+			ajoutable = true;
+		}
+		else if (compteurCouleur < 2){
+			ajoutable = true;
 		}
 		
 		return ajoutable;
