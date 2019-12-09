@@ -46,5 +46,10 @@ public class Objet {
 	public void setCouleur(int couleur) {
 		this.couleur = couleur;
 	}
+	
+	@Override
+	public String toString() {
+		return "\n Objet n°" + this.id + " est de couleur n°" + this.couleur + " et pèse " + this.poids;
+	}
 
 }

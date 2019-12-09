@@ -23,6 +23,10 @@ public class Boite {
 		this.listeObjet = ao;
 	}
 
+	public Boite() {
+		// TODO Auto-generated constructor stub
+	}
+
 	/**Compte le nombre de couleur afin de verifier si l'objet o1 est ajoutable dans notre sac ou non**/
 	public boolean verifCouleur(Objet o1){
 
@@ -120,5 +124,15 @@ public class Boite {
 			temp = temp + this.listeObjet.get(i).getPoids();
 		}
 		this.résidu = this.capacité - temp;
+	}
+	
+	@Override
+	public String toString() {
+		String newString = "";
+		for(Objet o : this.listeObjet) {
+			newString = newString + o;
+		}
+		return "\n Boite n°" + this.id + " ayant pour résidu : " + this.résidu +
+				" liste des objets qu'elle contient : \n" + newString;
 	}
 }
