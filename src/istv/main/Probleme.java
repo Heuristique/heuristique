@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -77,6 +78,16 @@ public class Probleme {
 			this.résiduTotal = this.résiduTotal + this.solution.get(i).getRésidu();
 		}
 		
+	}
+	
+	public int calculResiduDepuisSolutionActuelle(ArrayList<Boite> solutionActuelle) {
+		int res = 0;
+		
+		for(Boite b : solutionActuelle) {
+			res = res + b.getRésidu();
+		}
+		
+		return res;
 	}
 	
 	
@@ -306,11 +317,185 @@ public class Probleme {
 	public int getRésiduTotal() {
 		return résiduTotal;
 	}
+	
+	/**
+	 * retourne une liste contenant les pires boites d'une solution, 
+	 * c'est à dire les boites avec le résidu le plus élevé
+	 */
+	public ArrayList<Boite> getPiresBoites(ArrayList<Boite> solution) {
+		ArrayList<Boite> piresBoites = new ArrayList<Boite>();
+		int max ;
+		if(solution.isEmpty()) 	max = -1;
+		else {
+			max = solution.get(0).getRésidu();
+			for(Boite b : solution) {
+				if(b.getRésidu() > max) {
+					piresBoites.removeAll(piresBoites);
+					piresBoites.add(b);
+					max = b.getRésidu();
+				}
+				else if (b.getRésidu() == max) {
+					piresBoites.add(b);
+				}
+				else {
+					
+				}
+			}
+		}
+		return piresBoites;
+	}
+	
+	/**
+	 * Essaye d'inserer l'objet dans une boite existante aléatoire de la solution actuelle
+	 * Si ce n'est pas possible alors créer une boite, la plus petite possible en fonction du poids de l'objet
+	 * ajoute cet objet à la boite puis la boite à la solution actuelle
+	 * Fait tout cela pour chaque objet de la liste stock
+	 * @param solutionActuelle
+	 * @param o
+	 */
+	public ArrayList<Boite> insertionDansUneBoiteDejaCreer(ArrayList<Boite> solutionActuelle, ArrayList<Objet> stock) {
+		ArrayList<Boite> temporaire = new ArrayList<Boite>();
+		temporaire.addAll(solutionActuelle);
+		for(Objet o : stock) {
+		boolean verif = false;
+		for(int i = 1; i<100; i++) {
+			int  n= (int)(Math.random() * temporaire.size());
+			if(temporaire.get(n).verifCouleur(o) && (temporaire.get(n).getRésidu() >= o.getPoids())) {
+				temporaire.get(n).addObjet(o);
+					verif = true;
+					break;
+			}
+		}
+		if(verif = false) {
+			int min = this.tailleDisponible.get(0);
+			for(int tailleDispo : this.tailleDisponible) {
+				if(tailleDispo > o.getPoids() && tailleDispo < min) {
+					min = tailleDispo;
+				}
+			}
+			Boite b = new Boite(min);
+			b.addObjet(o);
+			temporaire.add(b);
+		}
+		
+		}
+		return temporaire;
+		
+	}
+	
+	/**
+	 * Construit la liste des voisins d'une solution initiale à l'aide d'une liste de ses pires boites
+	 * @param solutionActuelle
+	 * @param piresBoites
+	 * @return
+	 */
+	public ArrayList<ArrayList<Boite>> voisins(ArrayList<Boite> solutionActuelle, ArrayList<Boite> piresBoites) {
+		ArrayList<Objet> stock = new ArrayList<Objet>();
+		ArrayList<ArrayList<Boite>> voisins = new ArrayList<ArrayList<Boite>>();
+		ArrayList<Boite> temporaire = new ArrayList<Boite>();
+		temporaire.addAll(solutionActuelle);
+		for(Boite mauvaiseBoite : piresBoites) {
+			//for(Boite solution : temporaire) {
+			Iterator i = temporaire.iterator();
+			Boite b = new Boite(); 
+			while(i.hasNext()) {
+				b = (Boite) i.next();
+				if(b.getId() == mauvaiseBoite.getId()) {
+					for(Objet objet : b.getListeObjet()) {
+						stock.add(objet);
+						b.removeObjet(objet);
+					}
+					i.remove();;
+				}
+			}
+		}
+		voisins.add(insertionDansUneBoiteDejaCreer(temporaire, stock));
+		voisins.add(insertionDansUneBoiteDejaCreer(temporaire, stock));
+		
+		return voisins;
+		
+	}
+	
+	/**
+	 * Recupère les plus mauvaise boites (plus gros résidu) de la solution actuelle
+	 * Puis récupère les voisins de la solution actuelle en fonction de ces mauvaises boites
+	 * @param solutionActuelle
+	 * @return
+	 */
+	public ArrayList<ArrayList<Boite>> getVoisins(ArrayList<Boite> solutionActuelle) {
+		
+		ArrayList<ArrayList<Boite>> voisins = new ArrayList<ArrayList<Boite>>();
+		ArrayList<Boite> piresBoites = getPiresBoites(solutionActuelle);
+		
+		voisins.addAll(voisins(solutionActuelle, piresBoites));
+		
+		
+		return voisins;
+	}
 
 
 
 	public ArrayList<Boite> getSolution() {
 		return solution;
+	}
+	
+	
+	
+	public ArrayList<Boite> TabuSearch(ArrayList<Boite> solutionInitiale) {
+		
+		ArrayList<Boite> meilleurSolution = new ArrayList<Boite>();
+		meilleurSolution.addAll(solutionInitiale);
+		
+		ArrayList<Boite> solutionActuelle = new ArrayList<Boite>();
+		solutionActuelle.addAll(solutionInitiale);
+		
+		ArrayList<Boite> tabuList = new ArrayList<Boite>();
+		
+		ArrayList<Boite> meilleurVoisin = new ArrayList<Boite>();
+		
+		int iterationCounter = 0;
+		int min = 0;
+		int cpt = 0;
+		//On prédéfinit un nombre d'itération
+		while(iterationCounter < 10) {
+			
+			//Récupère une liste de voisin de la solution actuelle
+			ArrayList<ArrayList<Boite>> voisins = getVoisins(solutionActuelle);
+			
+			
+			int temp = calculResiduDepuisSolutionActuelle(solutionActuelle);
+			System.out.println("Residu de la solution actuelle : " + temp);
+			for(ArrayList<Boite> voisin : voisins) {
+				System.out.println("Residu du voisin n°" + cpt + " : " + calculResiduDepuisSolutionActuelle(voisin));
+				cpt++;
+			}
+			
+			//Récupère le meilleur voisin, c'est à dire celui avec le plus petit residu
+			min = calculResiduDepuisSolutionActuelle(voisins.get(0));
+			meilleurVoisin.addAll(voisins.get(0));
+			for(ArrayList<Boite> voisin : voisins) {
+				if(min > calculResiduDepuisSolutionActuelle(voisin)  && (!tabuList.containsAll(voisin))) {
+					System.out.println("Test debug condition meilleur voisin ");
+					min = calculResiduDepuisSolutionActuelle(voisin);
+					meilleurVoisin.removeAll(meilleurVoisin);
+					meilleurVoisin.addAll(voisin);							
+				}
+			}
+			
+			if(calculResiduDepuisSolutionActuelle(meilleurVoisin) < calculResiduDepuisSolutionActuelle(meilleurSolution)) {
+				meilleurSolution.removeAll(meilleurSolution);
+				meilleurSolution.addAll(meilleurVoisin);
+			}
+			
+			tabuList.addAll(solutionActuelle);
+			solutionActuelle.removeAll(solutionActuelle);
+			solutionActuelle.addAll(meilleurVoisin);
+			
+			iterationCounter++;
+			
+		}
+		
+		return meilleurSolution;
 	}
 
 
@@ -320,16 +505,43 @@ public class Probleme {
 		ArrayList<Probleme> listeP = new ArrayList<Probleme>();
 	
 		/** Test sur tout les benchs **/ 	
-		for(int i = 2;i<=20;i++) {
-			for(int j=0;j<=4;j++) {	
+	//	for(int i = 2;i<=20;i++) {
+	//		for(int j=0;j<=4;j++) {	
 
 				Probleme p1 = new Probleme();
-				p1.recupererFichier(i,j);
+				p1.recupererFichier(8,0);
 				p1.solutionSimple();
-				p1.calculRésidu();
+				System.out.println("Test debug");
+				for(Boite b: p1.getSolution()) {
+					System.out.println(b);
+				}
+				System.out.println("Fin test debug" + p1.getRésiduTotal());
+				ArrayList<Boite> resultat = new ArrayList<Boite>();
+				resultat = p1.TabuSearch(p1.getSolution());
+				System.out.println("Test");
+				for(Boite solution : resultat) {
+					System.out.println(solution);
+				}
+				int residuFinal = p1.calculResiduDepuisSolutionActuelle(resultat);
+				System.out.println("Resultat final : " + residuFinal);
+			/*	p1.calculRésidu();
 				listeP.add(p1);
-			}
-		}
+				for(Boite solution : p1.getSolution()) {
+					System.out.println(solution);
+				}
+				System.out.println("Résidu final : " + p1.calculResiduDepuisSolutionActuelle(p1.getSolution()));*/
+				/*
+				ArrayList<ArrayList<Boite>> voisins = new ArrayList<ArrayList<Boite>>();
+				voisins = p1.getVoisins(p1.getSolution());
+				for(ArrayList<Boite> newSolutions : voisins) {
+					System.out.println("\n Voisin :");
+					for(Boite voisin : newSolutions) {
+						System.out.println(voisin);
+					}
+				}*/
+				
+	//		}
+	//	}
 		
 		/**TODO : essayer d'implementer une heuristique afin de traiter le problème 
 		 * plus efficacement
@@ -344,15 +556,15 @@ public class Probleme {
 		listeP.add(p1);*/
 		
 		
-		int resmoy = 0;
+	/*	int resmoy = 0;
 		int cpt = 0;
 		int nbmoyBoite = 0;
 		for(Probleme p : listeP) {
 			cpt++;
-		resmoy = resmoy + p.getRésiduTotal() ;
-		nbmoyBoite = nbmoyBoite + p.getSolution().size();
+			resmoy = resmoy + p.getRésiduTotal() ;
+			nbmoyBoite = nbmoyBoite + p.getSolution().size();
 		}
-		System.out.println("Le residu moyen est de : "+ resmoy / cpt +  "et le nombre de boite" + nbmoyBoite/cpt);
+		System.out.println("Le residu moyen est de : "+ resmoy / cpt +  "et le nombre de boite" + nbmoyBoite/cpt);*/
 
 	}
 }
