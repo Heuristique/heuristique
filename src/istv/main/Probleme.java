@@ -240,10 +240,9 @@ public class Probleme {
 	 */
 	public void solutionSimple(){
 		for(int i=0; i<this.listeObjet.size(); i++) {
-			this.combinaisonSac();
-			this.combinaisonSac2();
+
 			this.trouvePlusPetiteBoite(this.listeObjet.get(i));
-			this.combinaisonSac3();
+			this.combinaisonSac();
 
 			
 			this.listeObjet.remove(i);
@@ -401,9 +400,13 @@ public class Probleme {
 			while(i.hasNext()) {
 				b = (Boite) i.next();
 				if(b.getId() == mauvaiseBoite.getId()) {
-					for(Objet objet : b.getListeObjet()) {
-						stock.add(objet);
-						b.removeObjet(objet);
+				//	for(Objet objet : b.getListeObjet()) {
+					Iterator j = b.getListeObjet().iterator();
+					Objet obj = new Objet();
+					while(j.hasNext()) {
+						obj = (Objet) j.next();
+						stock.add(obj);
+						j.remove();
 					}
 					i.remove();;
 				}
@@ -457,7 +460,7 @@ public class Probleme {
 		int min = 0;
 		int cpt = 0;
 		//On prédéfinit un nombre d'itération
-		while(iterationCounter < 10) {
+		while(iterationCounter < 20) {
 			
 			//Récupère une liste de voisin de la solution actuelle
 			ArrayList<ArrayList<Boite>> voisins = getVoisins(solutionActuelle);
@@ -509,13 +512,15 @@ public class Probleme {
 	//		for(int j=0;j<=4;j++) {	
 
 				Probleme p1 = new Probleme();
-				p1.recupererFichier(8,0);
+				p1.recupererFichier(8,2);
 				p1.solutionSimple();
-				System.out.println("Test debug");
+				p1.calculRésidu();
+				System.out.println("Test debug " + p1.getRésiduTotal());
 				for(Boite b: p1.getSolution()) {
 					System.out.println(b);
 				}
-				System.out.println("Fin test debug" + p1.getRésiduTotal());
+				int essaie = p1.getRésiduTotal();
+				System.out.println("Fin test debug " + essaie);
 				ArrayList<Boite> resultat = new ArrayList<Boite>();
 				resultat = p1.TabuSearch(p1.getSolution());
 				System.out.println("Test");
